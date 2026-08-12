@@ -4,9 +4,10 @@
     "deleteemployee",
     "employeescount",
     "getemployees",
+    "memberscount",
     "newemployee",
     "projectdetails",
     "taskemployees",
     "vasanthu"
-  ] 
+  ]
 }
