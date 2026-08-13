@@ -6,16 +6,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 const client = new Client({
-  user: "postgres",
-  host: "localhost",
-  database: "TeensSoftware",
-  password: "12345",
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 client
@@ -26,6 +27,68 @@ client
   .catch((err) => {
     console.error("Error connecting to PostgreSQL database:", err);
   });
+
+//retrieving all employees
+app.get("/getemployees", async (request, response) => {
+  const select_query = "SELECT * FROM EMPLOYEES;";
+  try {
+    const result = await client.query(select_query);
+    response.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error retrieving users:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/getclients", async (request, response) => {
+  try {
+    const result = await client.query("SELECT * FROM CLIENTS;");
+    response.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error retrieving clients:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/getdepartments", async (request, response) => {
+  try {
+    const result = await client.query("SELECT * FROM DEPARTMENTS;");
+    response.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error retrieving departments:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/getprojects", async (request, response) => {
+  try {
+    const result = await client.query("SELECT * FROM PROJECTS;");
+    response.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error retrieving projects:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/getroles", async (request, response) => {
+  try {
+    const result = await client.query("SELECT * FROM ROLES;");
+    response.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error retrieving roles:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/gettasks", async (request, response) => {
+  try {
+    const result = await client.query("SELECT * FROM TASKS;");
+    response.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error retrieving tasks:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
 
 //creating a new employee
 app.post("/newemployee", async (request, response) => {
@@ -56,18 +119,6 @@ app.post("/newemployee", async (request, response) => {
     response.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("Error registering user:", error);
-    response.status(500).json({ message: "Internal server error" });
-  }
-});
-
-//retrieving all employees
-app.get("/getemployees", async (request, response) => {
-  const select_query = "SELECT * FROM EMPLOYEES;";
-  try {
-    const result = await client.query(select_query);
-    response.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Error retrieving users:", error);
     response.status(500).json({ message: "Internal server error" });
   }
 });
@@ -157,6 +208,7 @@ app.get("/employees", async (req, res) => {
   res.json(result.rows);
 });
 
+//joins
 //count of employees in each departments (used left join to include departments with zero employees)
 app.get("/department/employeescount", async (request, response) => {
   const get_count = `SELECT
@@ -169,12 +221,12 @@ app.get("/department/employeescount", async (request, response) => {
     D.DEPARTMENT_NAME
   ORDER BY
     WORK_COUNT DESC;`;
-  try{
+  try {
     const result = await client.query(get_count);
-    response.status(200).json(result.rows)
+    response.status(200).json(result.rows);
   } catch (error) {
     console.error("Error retrieving employee counts:", error);
-    response.status(500).json({ message: "Internal server error" })
+    response.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -190,17 +242,17 @@ app.get("/employee/:id", async (request, response) => {
         INNER JOIN TASKS AS T ON E.EMPLOYEE_ID = T.EMPLOYEE_ID
         WHERE E.EMPLOYEE_ID = $1;`;
 
-    try {
-      const result = await client.query(getEmployeeQuery, [employeeId]);
-      if (result.rows.length === 0) {
-        response.status(404).json({ message: "Employee not found" });
-      } else {
-        response.status(200).json(result.rows);
-      }
-    } catch (error) {
-      console.error("Error retrieving employee:", error);
-      response.status(500).json({ message: "Internal server error" });
+  try {
+    const result = await client.query(getEmployeeQuery, [employeeId]);
+    if (result.rows.length === 0) {
+      response.status(404).json({ message: "Employee not found" });
+    } else {
+      response.status(200).json(result.rows);
     }
+  } catch (error) {
+    console.error("Error retrieving employee:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
 });
 
 //each project client details with project name and employee details
