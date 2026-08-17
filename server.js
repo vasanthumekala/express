@@ -288,20 +288,3 @@ app.get("/task/employees", async (request, response) => {
   }
 });
 
-//how many members are working on each task with task name
-app.get("/task/memberscount", async (request, response) => {
-  const getTaskMembersCountQuery = `SELECT
-      t.task_name, COUNT(e.employee_id) AS members_count
-    FROM
-      TASKS T 
-      LEFT JOIN EMPLOYEES E ON T.EMPLOYEE_ID = E.EMPLOYEE_ID
-    GROUP BY
-      t.task_name;`;
-  try {
-    const result = await client.query(getTaskMembersCountQuery);
-    response.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Error retrieving task members count:", error);
-    response.status(500).json({ message: "Internal server error" });
-  }
-});
