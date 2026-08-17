@@ -282,7 +282,6 @@ app.get("/task/employees", async (request, response) => {
     const result = await client.query(getTaskEmployeesQuery);
     response.status(200).json(result.rows);
   } catch (error) {
-    console.error("Error retrieving task employees:", error);
     response.status(500).json({ message: "Internal server error" });
   }
 });
