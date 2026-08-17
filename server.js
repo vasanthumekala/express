@@ -157,6 +157,7 @@ app.get("/employees", async (req, res) => {
   res.json(result.rows);
 });
 
+//joins
 //count of employees in each departments (used left join to include departments with zero employees)
 app.get("/department/employeescount", async (request, response) => {
   const get_count = `SELECT
