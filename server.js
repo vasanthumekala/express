@@ -271,37 +271,17 @@ app.get("/project/clientdetails", async (request, response) => {
   }
 });
 
-//employees working on each task with task name and project name
+//employees working on each task with task name
 app.get("/task/employees", async (request, response) => {
   const getTaskEmployeesQuery = `SELECT
-      t.task_name, p.project_name, e.first_name, e.last_name
+      t.task_name, e.first_name, e.last_name
     FROM
       TASKS T 
-      INNER JOIN PROJECTS P ON T.PROJECT_ID = P.PROJECT_ID
       INNER JOIN EMPLOYEES E ON T.EMPLOYEE_ID = E.EMPLOYEE_ID;`;
   try {
     const result = await client.query(getTaskEmployeesQuery);
     response.status(200).json(result.rows);
   } catch (error) {
-    console.error("Error retrieving task employees:", error);
-    response.status(500).json({ message: "Internal server error" });
-  }
-});
-
-//how many members are working on each task with task name
-app.get("/task/memberscount", async (request, response) => {
-  const getTaskMembersCountQuery = `SELECT
-      t.task_name, COUNT(e.employee_id) AS members_count
-    FROM
-      TASKS T 
-      LEFT JOIN EMPLOYEES E ON T.EMPLOYEE_ID = E.EMPLOYEE_ID
-    GROUP BY
-      t.task_name;`;
-  try {
-    const result = await client.query(getTaskMembersCountQuery);
-    response.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Error retrieving task members count:", error);
     response.status(500).json({ message: "Internal server error" });
   }
 });
